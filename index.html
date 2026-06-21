@@ -27,13 +27,15 @@
             margin-right: auto;
         }
         
-        .cookie-banner {
-            animation: slideUp 0.4s ease forwards;
+        .tiny-text {
+            font-size: 9px;
+            line-height: 1.1;
+            color: #9ca3af;
         }
         
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        .drip-fee {
+            font-size: 13px;
+            color: #6b7280;
         }
     </style>
 </head>
@@ -52,10 +54,6 @@
                     <a href="#" class="hover:text-emerald-600 transition-colors">Cửa hàng</a>
                     <a href="#" class="hover:text-emerald-600 transition-colors">Bộ sưu tập</a>
                     <a href="#" class="hover:text-emerald-600 transition-colors">Về chúng tôi</a>
-                    <div class="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="font-medium">1</span>
-                    </div>
                 </div>
             </div>
         </header>
@@ -118,6 +116,14 @@
                                 </div>
                             </label>
                             <span class="font-medium text-emerald-700">+10.000 đ</span>
+                        </div>
+                    </div>
+
+                    <!-- Drip Pricing Fee (hidden in Groups 2 & 4) -->
+                    <div id="drip-fee" class="hidden mt-4 pt-4 border-t drip-fee">
+                        <div class="flex justify-between items-center">
+                            <span>Phí XL&amp;VH</span>
+                            <span class="font-medium">+45.000 đ</span>
                         </div>
                     </div>
 
@@ -200,50 +206,37 @@
                         </div>
 
                         <button type="submit"
-                                class="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white font-semibold py-4 rounded-3xl text-lg shadow-lg shadow-emerald-200 flex items-center justify-center gap-3">
+                                class="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white font-semibold py-4 rounded-3xl text-lg shadow-lg shadow-emerald-200 flex items-center justify-center gap-3 relative">
                             HOÀN TẤT THANH TOÁN
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
-                    </form>
 
-                    <p class="text-center text-xs text-gray-500 mt-8">
-                        Bằng việc thanh toán, bạn đồng ý với <a href="#" class="underline">Điều khoản dịch vụ</a> và <a href="#" class="underline">Chính sách bảo mật</a> của GreenWear.
-                    </p>
+                        <!-- VIP Trap Text -->
+                        <div id="vip-trap" class="tiny-text text-center hidden">
+                            Bằng việc bấm thanh toán, bạn đồng ý tự động gia hạn gói thành viên VIP 50.000đ/tháng.
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Cookie Banner -->
-    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-2xl z-[100] hidden">
-        <div class="tail-container px-6 py-5">
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                <div class="flex-1 text-sm text-gray-600">
-                    Chúng tôi sử dụng cookie để cải thiện trải nghiệm của bạn, phân tích dữ liệu và hiển thị nội dung cá nhân hóa. 
-                    <a href="#" class="text-emerald-600 hover:underline">Tìm hiểu thêm</a>
-                </div>
+    <!-- Manipulation Modal -->
+    <div id="manipulate-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[200]">
+        <div class="bg-white rounded-3xl max-w-md w-full mx-4 p-8">
+            <div class="text-center">
+                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-5xl mb-4"></i>
+                <h3 class="font-semibold text-xl mb-3">Bạn có chắc muốn bỏ lựa chọn này?</h3>
+                <p id="modal-text" class="text-gray-600 leading-relaxed"></p>
                 
-                <!-- Transparent version -->
-                <div id="cookie-transparent" class="flex flex-wrap gap-3">
-                    <button onclick="handleCookieAccept()" 
-                            class="px-6 py-3 bg-gray-100 hover:bg-gray-200 transition-colors rounded-2xl text-sm font-medium">
-                        Chỉ cookie cần thiết
+                <div class="flex gap-4 mt-8">
+                    <button onclick="closeModal(false)" 
+                            class="flex-1 py-3.5 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50">
+                        Để sau
                     </button>
-                    <button onclick="handleCookieAccept()" 
-                            class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors rounded-2xl text-sm font-medium">
-                        Chấp nhận tất cả
-                    </button>
-                </div>
-                
-                <!-- Non-transparent version -->
-                <div id="cookie-nontransparent" class="flex flex-wrap gap-3 items-center">
-                    <button onclick="handleCookieAccept()" 
-                            class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors rounded-2xl text-sm font-semibold shadow-md">
-                        Chấp nhận tất cả
-                    </button>
-                    <button onclick="handleCookieDecline()" 
-                            class="text-xs text-gray-400 hover:text-gray-500 underline">
-                        Từ chối
+                    <button onclick="closeModal(true)" 
+                            class="flex-1 py-3.5 bg-red-600 text-white rounded-2xl font-medium hover:bg-red-700">
+                        Vẫn bỏ
                     </button>
                 </div>
             </div>
@@ -251,13 +244,12 @@
     </div>
 
     <script>
-        // Tailwind script already included via CDN
-
         let currentGroup = 1; // 1,2,3,4
         let insuranceChecked = false;
         let donationChecked = false;
+        let isProcessingUncheck = false;
 
-        // Random group assignment (25% each)
+        // Random group assignment
         function assignGroup() {
             const rand = Math.random();
             if (rand < 0.25) currentGroup = 1;
@@ -265,71 +257,101 @@
             else if (rand < 0.75) currentGroup = 3;
             else currentGroup = 4;
             
-            console.log(`%c📊 Đã phân bổ vào Nhóm ${currentGroup}`, 'color: #10b981; font-weight: bold');
+            console.log(`%c📊 Phân bổ ngẫu nhiên vào Nhóm ${currentGroup}`, 'color: #10b981; font-weight: bold; font-size: 14px');
         }
 
-        // Update total price
         function updateTotal() {
             let total = 499000;
             if (document.getElementById('insurance').checked) total += 20000;
             if (document.getElementById('donation').checked) total += 10000;
             
+            const hasDrip = (currentGroup === 2 || currentGroup === 4);
+            if (hasDrip) total += 45000;
+            
             document.getElementById('total-price').textContent = total.toLocaleString('vi-VN');
         }
 
-        // Setup checkboxes based on group
         function setupCheckboxes() {
             const isPreChecked = (currentGroup === 3 || currentGroup === 4);
-            
             const insurance = document.getElementById('insurance');
             const donation = document.getElementById('donation');
             
             insurance.checked = isPreChecked;
             donation.checked = isPreChecked;
             
-            insurance.addEventListener('change', () => {
-                insuranceChecked = insurance.checked;
-                updateTotal();
-            });
-            
-            donation.addEventListener('change', () => {
-                donationChecked = donation.checked;
-                updateTotal();
-            });
+            insurance.addEventListener('change', handleCheckboxChange);
+            donation.addEventListener('change', handleCheckboxChange);
             
             updateTotal();
         }
 
-        // Setup cookie banner
-        function setupCookieBanner() {
-            const banner = document.getElementById('cookie-banner');
-            const transparent = document.getElementById('cookie-transparent');
-            const nontransparent = document.getElementById('cookie-nontransparent');
+        function handleCheckboxChange(e) {
+            const checkbox = e.target;
+            const isInsurance = checkbox.id === 'insurance';
             
-            const isNonTransparent = (currentGroup === 2 || currentGroup === 4);
-            
-            if (isNonTransparent) {
-                transparent.classList.add('hidden');
-                nontransparent.classList.remove('hidden');
-            } else {
-                transparent.classList.remove('hidden');
-                nontransparent.classList.add('hidden');
+            if (!checkbox.checked && (currentGroup === 3 || currentGroup === 4)) {
+                e.preventDefault();
+                showManipulationModal(isInsurance ? 'insurance' : 'donation', checkbox);
+                return;
             }
             
-            banner.classList.remove('hidden');
+            insuranceChecked = document.getElementById('insurance').checked;
+            donationChecked = document.getElementById('donation').checked;
+            updateTotal();
         }
 
-        function handleCookieAccept() {
-            document.getElementById('cookie-banner').style.display = 'none';
-            console.log('✅ Cookie: Accepted');
-        }
-        
-        function handleCookieDecline() {
-            document.getElementById('cookie-banner').style.display = 'none';
-            console.log('❌ Cookie: Declined');
+        function showManipulationModal(type, checkbox) {
+            const modal = document.getElementById('manipulate-modal');
+            const modalText = document.getElementById('modal-text');
+            
+            if (type === 'insurance') {
+                modalText.innerHTML = `Nếu không mua bảo hiểm, đơn hàng của bạn <strong>có nguy cơ bị hư hỏng hoặc mất mát</strong> trong quá trình vận chuyển. Bạn thực sự muốn mạo hiểm chứ?`;
+            } else {
+                modalText.innerHTML = `Việc không đóng góp cho Quỹ Thời trang Xanh đồng nghĩa với việc bạn <strong>không ủng hộ môi trường</strong>. Bạn chắc chắn muốn bỏ qua cơ hội này?`;
+            }
+            
+            modal.classList.remove('hidden');
+            modal.dataset.targetCheckbox = checkbox.id;
         }
 
-        // Fake payment option selection
+        function closeModal(confirmUncheck) {
+            const modal = document.getElementById('manipulate-modal');
+            const checkboxId = modal.dataset.targetCheckbox;
+            const checkbox = document.getElementById(checkboxId);
+            
+            modal.classList.add('hidden');
+            
+            if (confirmUncheck && checkbox) {
+                // Small artificial delay for friction
+                setTimeout(() => {
+                    checkbox.checked = false;
+                    insuranceChecked = document.getElementById('insurance').checked;
+                    donationChecked = document.getElementById('donation').checked;
+                    updateTotal();
+                }, 420);
+            }
+        }
+
+        function setupNudges() {
+            const hasNonTransparent = (currentGroup === 2 || currentGroup === 4);
+            
+            // Drip Pricing
+            const dripFeeEl = document.getElementById('drip-fee');
+            if (hasNonTransparent) {
+                dripFeeEl.classList.remove('hidden');
+            } else {
+                dripFeeEl.classList.add('hidden');
+            }
+            
+            // VIP Trap
+            const vipTrap = document.getElementById('vip-trap');
+            if (hasNonTransparent) {
+                vipTrap.classList.remove('hidden');
+            } else {
+                vipTrap.classList.add('hidden');
+            }
+        }
+
         function selectPayment(el) {
             document.querySelectorAll('.payment-option').forEach(opt => {
                 opt.classList.remove('border-emerald-600', 'bg-emerald-50');
@@ -338,54 +360,41 @@
             el.classList.add('border-emerald-600', 'bg-emerald-50');
         }
 
-        // Submit handler
         function handleSubmit(e) {
             e.preventDefault();
             
             const name = document.getElementById('fullName').value || "Không có tên";
             const phone = document.getElementById('phone').value || "Không có SĐT";
             
-            // Final checkbox states
             insuranceChecked = document.getElementById('insurance').checked;
             donationChecked = document.getElementById('donation').checked;
             
-            // Build Google Form URL with parameters
-            // NOTE: Bạn cần thay entry.XXXXXX bằng ID thực tế của Google Form
             let formUrl = "https://forms.gle/iFP37ubmmFBRX1286";
             
-            // Thêm parameters (thay entry IDs bằng ID thật từ Google Form)
             const params = new URLSearchParams({
-                "entry.123456789": `Nhom_${currentGroup}`,           // Group
-                "entry.987654321": insuranceChecked ? "Co" : "Khong", // Bảo hiểm
-                "entry.1122334455": donationChecked ? "Co" : "Khong", // Đóng góp
-                "entry.6677889900": name,                             // Tên
-                "entry.5544332211": phone                             // SĐT
+                "entry.123456789": `Nhom_${currentGroup}`,
+                "entry.987654321": insuranceChecked ? "Co" : "Khong",
+                "entry.1122334455": donationChecked ? "Co" : "Khong",
+                "entry.6677889900": name,
+                "entry.5544332211": phone,
+                "entry.9988776655": (currentGroup === 2 || currentGroup === 4) ? "Co_VIP_Drip" : "Khong"
             });
             
             const finalUrl = `${formUrl}?${params.toString()}`;
             
-            console.log(`🚀 Chuyển hướng đến Google Form cho Nhóm ${currentGroup}`);
-            console.log("Dữ liệu:", {
-                group: currentGroup,
-                insurance: insuranceChecked,
-                donation: donationChecked
-            });
-            
-            // Redirect
+            console.log(`🚀 Chuyển hướng đến Google Form - Nhóm ${currentGroup}`);
             window.location.href = finalUrl;
         }
 
-        // Initialize
         function initialize() {
             assignGroup();
             setupCheckboxes();
-            setupCookieBanner();
+            setupNudges();
             
-            // Form submit
             document.getElementById('checkout-form').addEventListener('submit', handleSubmit);
             
-            // Pre-fill some dummy data for demo
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Demo pre-fill
+            if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
                 document.getElementById('fullName').value = "Nguyễn Văn A";
                 document.getElementById('phone').value = "0912345678";
                 document.getElementById('email').value = "example@email.com";
@@ -393,7 +402,6 @@
             }
         }
 
-        // Run on load
         window.onload = initialize;
     </script>
 </body>
